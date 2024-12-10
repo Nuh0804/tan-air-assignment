@@ -52,7 +52,7 @@ class OrderViewSet(CreateModelMixin,
                   DestroyModelMixin,
                   GenericViewSet):
     queryset = Order.objects.prefetch_related('items__product').all()
-    serializer_class = CartSerializer
+    serializer_class = OrderSerializer
 
     def perform_create(self, serializer):
         serializer.save(user = self.request.user)
@@ -64,16 +64,16 @@ class OrderItemViewSet(ModelViewSet):
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
-            return AddCartItemSerializer
+            return AddOrderItemSerializer
         elif self.request.method == 'PATCH':
-            return UpdateCartItemSerializer
-        return CartItemSerializer
+            return UpdateOrderItemSerializer
+        return OrderItemSerializer
 
     def get_serializer_context(self):
-        return {'cart_id': self.kwargs['cart_pk']}
+        return {'order_id': self.kwargs['order_pk']}
 
     def get_queryset(self):
         return OrderItem.objects\
-            .filter(cart_id=self.kwargs['cart_pk']) \
+            .filter(order_id=self.kwargs['order_pk']) \
             .select_related('product')
     
